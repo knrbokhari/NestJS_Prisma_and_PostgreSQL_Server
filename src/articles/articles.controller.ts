@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -31,8 +32,13 @@ export class ArticlesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.articlesService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const article = await this.articlesService.findOne(+id);
+
+    if (!article) {
+      throw new NotFoundException(`Could not find article with ${id}.`);
+    }
+    return article;
   }
 
   @Patch(':id')
