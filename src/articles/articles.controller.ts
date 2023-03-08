@@ -7,8 +7,11 @@ import {
   Param,
   Delete,
   NotFoundException,
+  ParseIntPipe,
+  UseFilters,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { PrismaClientExceptionFilter } from 'src/prisma-client-exception/prisma-client-exception.filter';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -16,6 +19,7 @@ import { ArticleEntity } from './entities/article.entity';
 
 @Controller('articles')
 @ApiTags('articles')
+@UseFilters(PrismaClientExceptionFilter)
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
@@ -39,8 +43,8 @@ export class ArticlesController {
 
   @Get(':id')
   @ApiOkResponse({ type: ArticleEntity })
-  async findOne(@Param('id') id: string) {
-    const article = await this.articlesService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const article = await this.articlesService.findOne(id);
 
     if (!article) {
       throw new NotFoundException(`Could not find article with ${id}.`);
@@ -50,13 +54,16 @@ export class ArticlesController {
 
   @Patch(':id')
   @ApiOkResponse({ type: ArticleEntity })
-  update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
-    return this.articlesService.update(+id, updateArticleDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateArticleDto: UpdateArticleDto,
+  ) {
+    return this.articlesService.update(id, updateArticleDto);
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: ArticleEntity })
-  remove(@Param('id') id: string) {
-    return this.articlesService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.articlesService.remove(id);
   }
 }
