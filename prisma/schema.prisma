@@ -19,3 +19,45 @@ model Article {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+
+
+model Types {
+  id Int @id @default(autoincrement())
+  name String
+  settings Json?
+  slug String
+  language String
+  icon String
+  promotional_sliders Json?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  translated_languages String[]
+  banners Json?
+
+  // for one to one relationships
+  categories Categories?
+}
+
+model Categories{
+  id Int @id @default(autoincrement())
+  name String
+  slug String
+  icon String
+  details String?
+  language String
+  translated_languages String[]
+  parent String?
+
+  // for one to one relationships
+  type Types @relation(fields: [type_id], references: [id])
+  type_id Int @unique
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  deleted_at String?
+  parent_id String?
+
+  // type 
+  children Json?
+}
